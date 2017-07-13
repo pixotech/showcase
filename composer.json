@@ -1,0 +1,19 @@
+{
+    "name": "pixo/sketch-patterns",
+    "description": "Export pattern mockups from Sketch files",
+    "autoload": {
+        "psr-4": {
+            "Pixo\\Design\\SketchPatterns\\": "src"
+        }
+    },
+    "require": {
+        "symfony/console": "^3.3"
+    },
+    "authors": [
+        {
+            "name": "Matt Sharkey",
+            "email": "matt@pixotech.com"
+        }
+    ],
+    "bin": ["bin/main"]
+}
