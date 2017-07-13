@@ -34,7 +34,7 @@ class Export implements \Countable, \IteratorAggregate
 
     protected function parseOutput(array $output)
     {
-        $pattern = '/' . preg_quote($this->getSourceId()) . '(.*)\.([a-z]+)$/';
+        $pattern = '/' . preg_quote($this->getSourceId()) . '(@[.0-9]+x)?\.([a-z]+)$/';
         foreach ($output as $line) {
             if (preg_match($pattern, $line, $matches)) {
                 $this->images[] = [

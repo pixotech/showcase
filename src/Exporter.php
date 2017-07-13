@@ -16,8 +16,7 @@ class Exporter
         $path = $input->getArgument('path') ?: dirname($file);
         $doc = new Document($file);
         $formats = [
-            ['1x', 'png'],
-            ['2x', 'png'],
+            ['1x,2x', 'png'],
         ];
         $prefix = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
@@ -50,7 +49,10 @@ class Exporter
             }
 
             $mockup = [
-                'artboard' => $artboard->getName(),
+                'artboard' => [
+                    'id' => $artboard->getId(),
+                    'name' => $artboard->getName(),
+                ],
                 'page' => $artboard->getPage(),
                 'name' => $meta['name'],
                 'group' => $meta['group'],
@@ -66,19 +68,12 @@ class Exporter
                 $output->writeln(sprintf("Exported %d files from artboard \"%s\"", count($exports), $artboard->getName()), Output::VERBOSITY_VERBOSE);
                 $dest = $this->makeExportPath($artboard, $scale, $format);
                 foreach ($exports as $i => $export) {
-                    if (!$i) {
-                        $output->writeln("Creating file: {$dest}", Output::VERBOSITY_VERBOSE);
-                        $filesCreated[] = $prefix . $dest;
-                        rename($export['path'], $prefix . $dest);
-                        $mockup['images'][] = [
-                            'path' => $dest,
-                            'format' => $format,
-                            'scale' => floatval($scale),
-                        ];
-                    } else {
-                        $output->writeln("Deleting file: {$export['path']}", Output::VERBOSITY_VERBOSE);
-                        unlink($export['path']);
-                    }
+                    $filesCreated[] = $prefix . $dest;
+                    $mockup['images'][] = [
+                        'path' => basename($export['path']),
+                        'format' => $export['format'],
+                        'scale' => $this->convertScaleToFloat($export['scale']),
+                    ];
                 }
             }
 
@@ -88,7 +83,7 @@ class Exporter
         $stop = microtime(true);
         $elapsed = $stop - $start;
 
-        $reportPath = $prefix . 'patterns.json';
+        $reportPath = $prefix . 'showcase.json';
         $report = json_encode($manifest, JSON_PRETTY_PRINT);
         file_put_contents($reportPath, $report);
         $output->writeln('Report saved.', Output::VERBOSITY_VERBOSE);
@@ -105,5 +100,10 @@ class Exporter
         $width = $artboard->getWidth();
         $height = $artboard->getHeight();
         return "{$pattern}__{$width}x{$height}__{$scale}.{$format}";
+    }
+
+    protected function convertScaleToFloat($scale)
+    {
+        return $scale ? floatval(substr($scale, 1, -1)) : 1;
     }
 }

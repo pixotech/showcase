@@ -1,6 +1,6 @@
 {
-    "name": "pixo/sketch-patterns",
-    "description": "Export pattern mockups from Sketch files",
+    "name": "pixo/showcase",
+    "description": "Export and package mockups from Sketch files",
     "autoload": {
         "psr-4": {
             "Pixo\\Design\\SketchPatterns\\": "src"
@@ -15,5 +15,5 @@
             "email": "matt@pixotech.com"
         }
     ],
-    "bin": ["bin/main"]
+    "bin": ["bin/showcase"]
 }
