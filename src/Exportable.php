@@ -4,6 +4,8 @@ namespace Pixo\Design\SketchPatterns;
 
 abstract class Exportable implements \JsonSerializable, ExportableInterface
 {
+    protected $description;
+
     protected $height;
 
     protected $id;
@@ -13,6 +15,32 @@ abstract class Exportable implements \JsonSerializable, ExportableInterface
     protected $patternId;
 
     protected $width;
+
+    public static function parseName($name)
+    {
+        $parsed = [
+            'artboard' => $name,
+            'pattern' => null,
+            'name' => null,
+            'group' => null,
+            'extra' => null,
+        ];
+        if (preg_match('/@([a-z0-9-]+)\b/', $name, $matches)) {
+            $pattern = $matches[1];
+            list($name, $extra) = explode("@{$pattern}", $name, 2);
+            $path = array_map('trim', explode('/', $name));
+            $name = array_pop($path);
+            $group = implode('/', $path);
+            $parsed['pattern'] = $pattern;
+            $parsed['name'] = $name ?: $pattern;
+            $parsed['group'] = $group ?: null;
+            $parsed['extra'] = trim($extra) ?: null;
+
+        } else {
+            $parsed['name'] = $name;
+        }
+        return $parsed;
+    }
 
     public function __construct(array $data)
     {
@@ -64,11 +92,7 @@ abstract class Exportable implements \JsonSerializable, ExportableInterface
     protected function setName($name)
     {
         $this->name = $name;
-        if (preg_match('/@([a-z0-9-]+)\b/', $name, $matches)) {
-            $this->patternId = $matches[1];
-        } else {
-            $this->patternId = null;
-        }
+        $parsed = self::parseName($name);
+        $this->patternId = $parsed['pattern'];
    }
-
 }

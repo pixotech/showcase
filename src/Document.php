@@ -4,16 +4,6 @@ namespace Pixo\Design\SketchPatterns;
 
 class Document implements DocumentInterface
 {
-    protected $app;
-
-    protected $appVersion;
-
-    protected $build;
-
-    protected $commit;
-
-    protected $fonts = [];
-
     protected $path;
 
     public function __construct($path)
@@ -59,10 +49,21 @@ class Document implements DocumentInterface
         $data = json_decode(implode("\n", $lines), true);
         foreach ($data['pages'] as $page) {
             foreach ($page['artboards'] as $artboard) {
-                $artboards[$artboard['id']] = new Artboard($artboard);
+                $artboards[$artboard['id']] = new Artboard($artboard, $page);
             }
         }
         return $artboards;
+    }
+
+    public function getMetadata()
+    {
+        $artboards = [];
+        $cmd = sprintf("sketchtool metadata %s", escapeshellarg($this->path));
+        exec($cmd, $lines, $return);
+        if ($return > 0) {
+            throw new \Exception("Could not retrieve metadata");
+        }
+        return json_decode(implode("\n", $lines), true);
     }
 
     public function getPatterns()
@@ -77,5 +78,10 @@ class Document implements DocumentInterface
             }
         }
         return $patterns;
+    }
+
+    public function getPath()
+    {
+        return $this->path;
     }
 }
