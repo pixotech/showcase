@@ -3,7 +3,7 @@
     "description": "Export and package mockups from Sketch files",
     "autoload": {
         "psr-4": {
-            "Pixo\\Design\\SketchPatterns\\": "src"
+            "Pixo\\Showcase\\": "src"
         }
     },
     "require": {

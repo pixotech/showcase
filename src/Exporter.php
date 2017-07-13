@@ -1,6 +1,6 @@
 <?php
 
-namespace Pixo\Design\SketchPatterns;
+namespace Pixo\Showcase;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\Output;

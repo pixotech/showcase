@@ -1,6 +1,6 @@
 <?php
 
-namespace Pixo\Design\SketchPatterns;
+namespace Pixo\Showcase;
 
 class Artboard extends Exportable implements ArtboardInterface
 {

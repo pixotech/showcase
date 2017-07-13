@@ -1,6 +1,6 @@
 <?php
 
-namespace Pixo\Design\SketchPatterns;
+namespace Pixo\Showcase;
 
 class Document implements DocumentInterface
 {
