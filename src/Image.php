@@ -33,9 +33,19 @@ class Image implements ImageInterface, \JsonSerializable
         return $image;
     }
 
+    public function getFormat()
+    {
+        return $this->format;
+    }
+
     public function getPath()
     {
         return $this->path;
+    }
+
+    public function getScale()
+    {
+        return $this->scale;
     }
 
     public function jsonSerialize()
