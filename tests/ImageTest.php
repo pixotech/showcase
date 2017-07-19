@@ -4,9 +4,18 @@ namespace Pixo\Showcase;
 
 class ImageTest extends \PHPUnit_Framework_TestCase
 {
+    protected function getMockJson()
+    {
+        return [
+            'path' => 'path-to-image.png',
+            'format' => 'png',
+            'scale' => 1,
+        ];
+    }
+
     public function testFromJson()
     {
-        $json = $this->getImageData();
+        $json = self::getMockJson();
         $image = Image::fromJson($json);
         $this->assertInstanceOf(Image::class, $image);
         $this->assertEquals($json['path'], $image->getPath());
@@ -16,18 +25,9 @@ class ImageTest extends \PHPUnit_Framework_TestCase
 
     public function testJsonSerialize()
     {
-        $source = $this->getImageData();
+        $source = self::getMockJson();
         $image = Image::fromJson($source);
         $json = $image->jsonSerialize();
         $this->assertEquals($source, $json);
-    }
-
-    protected function getImageData()
-    {
-        return [
-            'path' => 'path-to-image.png',
-            'format' => 'png',
-            'scale' => 1,
-        ];
     }
 }

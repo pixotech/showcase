@@ -4,9 +4,24 @@ namespace Pixo\Showcase\Sketch;
 
 class ArtboardTest extends \PHPUnit_Framework_TestCase
 {
+    public static function getMockJson()
+    {
+        return [
+            'id' => 'artboard-id',
+            'name' => 'Name of artboard',
+            'page' => 'Name of page',
+            'description' => 'Description of artboard',
+            'pattern' => 'pattern-id',
+            'group' => 'Name of group',
+            'extra' => 'Extra information',
+            'width' => 800,
+            'height' => 600,
+        ];
+    }
+
     public function testFromJson()
     {
-        $json = $this->getArtboardData();
+        $json = self::getMockJson();
         $artboard = Artboard::fromJson($json);
         $this->assertInstanceOf(Artboard::class, $artboard);
         $this->assertEquals($json['id'], $artboard->getId());
@@ -22,24 +37,9 @@ class ArtboardTest extends \PHPUnit_Framework_TestCase
 
     public function testJsonSerialize()
     {
-        $source = $this->getArtboardData();
+        $source = self::getMockJson();
         $artboard = Artboard::fromJson($source);
         $json = $artboard->jsonSerialize();
         $this->assertEquals($source, $json);
-    }
-
-    protected function getArtboardData()
-    {
-        return [
-            'id' => 'artboard-id',
-            'name' => 'Name of artboard',
-            'page' => 'Name of page',
-            'description' => 'Description of artboard',
-            'pattern' => 'pattern-id',
-            'group' => 'Name of group',
-            'extra' => 'Extra information',
-            'width' => 800,
-            'height' => 600,
-        ];
     }
 }

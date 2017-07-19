@@ -3,25 +3,30 @@
 namespace Pixo\Showcase;
 
 use Pixo\Showcase\Sketch\Artboard;
+use Pixo\Showcase\Sketch\ArtboardTest;
 
 class MockupTest extends \PHPUnit_Framework_TestCase
 {
-    public function testFromJson()
+    public static function getMockJson()
     {
-        $json = [
-            'artboard' => [
-                'id' => 'artboard-id',
-            ],
+        return [
+            'artboard' => ArtboardTest::getMockJson(),
             'images' => [
                 [
                     'path' => '/path/to/image/png',
                 ]
             ],
         ];
+    }
+
+    public function testFromJson()
+    {
+        $json = self::getMockJson();
         $mockup = Mockup::fromJson($json);
         $this->assertInstanceOf(Mockup::class, $mockup);
 
         $this->assertInstanceOf(Artboard::class, $mockup->getArtboard());
+        $this->assertEquals($json['artboard'], $mockup->getArtboard()->jsonSerialize());
 
         $this->assertEquals(count($json['images']), count($mockup->getImages()));
         foreach ($mockup->getImages() as $image) {
@@ -31,16 +36,7 @@ class MockupTest extends \PHPUnit_Framework_TestCase
 
     public function testJsonSerialize()
     {
-        $source = [
-            'artboard' => [
-                'id' => 'artboard-id',
-            ],
-            'images' => [
-                [
-                    'path' => '/path/to/image/png',
-                ]
-            ],
-        ];
+        $source = self::getMockJson();
         $mockup = Mockup::fromJson($source);
         $json = $mockup->jsonSerialize();
 
