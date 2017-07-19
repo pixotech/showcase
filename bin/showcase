@@ -8,9 +8,9 @@ use Symfony\Component\Console\Input\InputArgument;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $app = new Application('showcase', '1.0.0');
-$app->register('export')
+$app->register('save')
   ->addArgument('file', InputArgument::REQUIRED, 'Sketch file')
   ->addArgument('path', InputArgument::OPTIONAL, 'Destination path')
-  ->setCode(new Exporter());
-$app->setDefaultCommand('export', true);
+  ->setCode([Showcase::class, 'save']);
+$app->setDefaultCommand('save', true);
 $app->run();

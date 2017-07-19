@@ -7,7 +7,8 @@
         }
     },
     "require": {
-        "symfony/console": "^3.3"
+        "symfony/console": "^3.3",
+        "symfony/process": "^3.3"
     },
     "authors": [
         {
@@ -15,5 +16,8 @@
             "email": "matt@pixotech.com"
         }
     ],
-    "bin": ["bin/showcase"]
+    "bin": ["bin/showcase"],
+    "require-dev": {
+        "phpunit/phpunit": "^5.7"
+    }
 }
