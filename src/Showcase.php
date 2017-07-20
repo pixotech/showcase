@@ -6,8 +6,6 @@ use Pixo\Showcase\Sketch\Application;
 use Pixo\Showcase\Sketch\ApplicationInterface;
 use Pixo\Showcase\Sketch\Document;
 use Pixo\Showcase\Sketch\DocumentInterface;
-use Pixo\Showcase\Sketch\Artboard;
-use Pixo\Showcase\Sketch\ArtboardInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,12 +14,21 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
 {
     const MANIFEST_NAME = 'showcase.manifest.json';
 
-    const VERSION = '0.0.1';
+    const VERSION = '0.1.0';
 
+    /**
+     * @var ApplicationInterface
+     */
     protected $application;
 
+    /**
+     * @var PatternInterface[]
+     */
     protected $patterns = [];
 
+    /**
+     * @var string
+     */
     protected $source;
 
     /**
@@ -29,6 +36,21 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
      */
     protected $time;
 
+    public static function inspect(InputInterface $input, OutputInterface $output)
+    {
+        $path = $input->getArgument('path');
+        $showcase = static::load($path);
+        ob_start();
+        var_dump($showcase);
+        $dump = ob_get_contents();
+        ob_end_clean();
+        $output->writeln($dump);
+    }
+
+    /**
+     * @param \Pixo\Showcase\Sketch\DocumentInterface $doc
+     * @return Showcase
+     */
     public static function fromDocument(DocumentInterface $doc)
     {
         $showcase = new static();
@@ -38,6 +60,11 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
         return $showcase;
     }
 
+    /**
+     * @param array $json
+     * @param string $directory
+     * @return Showcase
+     */
     public static function fromJson(array $json, $directory)
     {
         $showcase = new static();
@@ -59,7 +86,7 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
     }
 
     /**
-     * @param $path
+     * @param string $path
      * @return Showcase
      */
     public static function load($path)
@@ -79,15 +106,19 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
         return $showcase;
     }
 
+    /**
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     */
     public static function save(InputInterface $input, OutputInterface $output)
     {
         $start = microtime(true);
         $filesCreated = [];
         $file = $input->getArgument('file');
-        $path = $input->getArgument('path') ?: dirname($file);
+        $path = $input->getArgument('path');
         $doc = new Document($file);
         $formats = [
-          ['1x,2x', 'png'],
+            ['1x,2x', 'png'],
         ];
         $prefix = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         $showcase = Showcase::fromDocument($doc);
@@ -126,24 +157,42 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
         $output->writeln(sprintf("Done. (%0.04d seconds)", $elapsed));
     }
 
+    public static function version(InputInterface $input, OutputInterface $output)
+    {
+        return $output->writeln(self::VERSION);
+    }
+
+    /**
+     * @param string $str
+     * @return mixed
+     */
     protected static function jsonDecode($str)
     {
         return json_decode($str, true);
     }
 
-    protected static function makeExportPath(ArtboardInterface $artboard, $scale, $format)
-    {
-        $pattern = $artboard->getPattern();
-        $width = $artboard->getWidth();
-        $height = $artboard->getHeight();
-        return "{$pattern}__{$width}x{$height}__{$scale}.{$format}";
-    }
-
+    /**
+     * @param string $dir
+     * @return string
+     */
     protected static function makeManifestPath($dir)
     {
         return rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . self::MANIFEST_NAME;
     }
 
+    public function __construct()
+    {
+        $this->time = new \DateTime();
+    }
+
+    public function __debugInfo()
+    {
+        return $this->jsonSerialize();
+    }
+
+    /**
+     * @param \Pixo\Showcase\PatternInterface $pattern
+     */
     public function addPattern(PatternInterface $pattern)
     {
         $this->patterns[$pattern->getId()] = $pattern;
@@ -185,23 +234,36 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
         return $this->source;
     }
 
+    /**
+     * @return \DateTime
+     */
     public function getTime()
     {
         return $this->time;
     }
 
+    /**
+     * @param string $id
+     * @return bool
+     */
     public function hasPattern($id)
     {
         return isset($this->patterns[$id]);
     }
 
+    /**
+     * @return array
+     */
     public function jsonSerialize()
     {
         return [
-          'patterns' => $this->patterns,
-          'application' => $this->application,
-          'source' => $this->source,
-          'time' => $this->time->format('c'),
+            'showcase' => [
+                'version' => self::VERSION,
+            ],
+            'patterns' => $this->patterns,
+            'application' => $this->application,
+            'source' => $this->source,
+            'time' => $this->time->format('c'),
         ];
     }
 }

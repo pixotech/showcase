@@ -62,6 +62,13 @@ class ShowcaseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($pattern->getMockups()));
     }
 
+    public function testVersion()
+    {
+        $showcase = new Showcase();
+        $json = $showcase->jsonSerialize();
+        $this->assertEquals(Showcase::VERSION, $json['showcase']['version']);
+    }
+
     protected function createManifest($data)
     {
         $path = sys_get_temp_dir();

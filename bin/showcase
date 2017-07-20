@@ -7,10 +7,14 @@ use Symfony\Component\Console\Input\InputArgument;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$app = new Application('showcase', '1.0.0');
+$app = new Application('showcase', Showcase::VERSION);
+$app->register('inspect')
+    ->setDescription("Display information about a directory of mockups")
+    ->addArgument('path', InputArgument::REQUIRED, 'The path to the directory')
+    ->setCode([Showcase::class, 'inspect']);
 $app->register('save')
-  ->addArgument('file', InputArgument::REQUIRED, 'Sketch file')
-  ->addArgument('path', InputArgument::OPTIONAL, 'Destination path')
-  ->setCode([Showcase::class, 'save']);
-$app->setDefaultCommand('save', true);
+    ->setDescription("Export pattern mockups to a directory")
+    ->addArgument('file', InputArgument::REQUIRED, 'The path to the Sketch file')
+    ->addArgument('path', InputArgument::REQUIRED, 'The path to the target directory')
+    ->setCode([Showcase::class, 'save']);
 $app->run();

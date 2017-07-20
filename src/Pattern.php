@@ -24,6 +24,16 @@ class Pattern implements PatternInterface, \JsonSerializable
         $this->id = $id;
     }
 
+    public function __debugInfo()
+    {
+        return $this->jsonSerialize();
+    }
+
+    public function __toString()
+    {
+        return "@{$this->getId()}";
+    }
+
     public function addMockup(MockupInterface $mockup)
     {
         $this->mockups[] = $mockup;

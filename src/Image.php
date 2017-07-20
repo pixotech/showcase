@@ -39,9 +39,17 @@ class Image implements ImageInterface, \JsonSerializable
         return $image;
     }
 
+    public function __debugInfo()
+    {
+        $info = $this->jsonSerialize();
+        $info['file'] = $this->getFile();
+        return $info;
+    }
+
     public function getFile()
     {
-        return new \SplFileInfo($this->directory . DIRECTORY_SEPARATOR . $this->path);
+        $path = rtrim($this->directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->path;
+        return new \SplFileInfo($path);
     }
 
     public function getFormat()

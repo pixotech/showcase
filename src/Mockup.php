@@ -38,6 +38,11 @@ class Mockup implements MockupInterface, \Countable, \IteratorAggregate, \JsonSe
         return $mockup;
     }
 
+    public function __debugInfo()
+    {
+        return $this->jsonSerialize();
+    }
+
     public function addImage($image)
     {
         $this->images[] = $image;
