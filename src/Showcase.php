@@ -2,6 +2,7 @@
 
 namespace Pixo\Showcase;
 
+use Pixo\Showcase\Exceptions\InvalidManifestException;
 use Pixo\Showcase\Exceptions\MissingManifestException;
 use Pixo\Showcase\Sketch\Application;
 use Pixo\Showcase\Sketch\ApplicationInterface;
@@ -101,7 +102,7 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
         }
         $json = static::jsonDecode(file_get_contents($manifestPath));
         if (null === $json) {
-            throw new \DomainException("Empty or invalid file: $manifestPath");
+            throw new InvalidManifestException($manifestPath);
         }
         $showcase = static::fromJson($json, $path);
         return $showcase;
