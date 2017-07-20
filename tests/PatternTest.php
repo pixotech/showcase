@@ -16,8 +16,9 @@ class PatternTest extends \PHPUnit_Framework_TestCase
 
     public function testFromJson()
     {
+        $dir = '/path/to/file';
         $json = self::getMockJson();
-        $pattern = Pattern::fromJson($json);
+        $pattern = Pattern::fromJson($json, $dir);
         $this->assertInstanceOf(Pattern::class, $pattern);
 
         $this->assertEquals($json['id'], $pattern->getId());
@@ -30,8 +31,9 @@ class PatternTest extends \PHPUnit_Framework_TestCase
 
     public function testJsonSerialize()
     {
+        $dir = '/path/to/file';
         $source = self::getMockJson();
-        $pattern = Pattern::fromJson($source);
+        $pattern = Pattern::fromJson($source, $dir);
         $json = $pattern->jsonSerialize();
 
         $this->assertArrayHasKey('id', $json);

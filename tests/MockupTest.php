@@ -21,8 +21,9 @@ class MockupTest extends \PHPUnit_Framework_TestCase
 
     public function testFromJson()
     {
+        $dir = '/path/to/file';
         $json = self::getMockJson();
-        $mockup = Mockup::fromJson($json);
+        $mockup = Mockup::fromJson($json, $dir);
         $this->assertInstanceOf(Mockup::class, $mockup);
 
         $this->assertInstanceOf(Artboard::class, $mockup->getArtboard());
@@ -36,8 +37,9 @@ class MockupTest extends \PHPUnit_Framework_TestCase
 
     public function testJsonSerialize()
     {
+        $dir = '/path/to/file';
         $source = self::getMockJson();
-        $mockup = Mockup::fromJson($source);
+        $mockup = Mockup::fromJson($source, $dir);
         $json = $mockup->jsonSerialize();
 
         $this->assertArrayHasKey('artboard', $json);

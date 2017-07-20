@@ -8,12 +8,12 @@ class Pattern implements PatternInterface, \JsonSerializable
 
     protected $mockups = [];
 
-    public static function fromJson(array $json)
+    public static function fromJson(array $json, $directory)
     {
         $pattern = new static($json['id']);
         if (!empty($json['mockups'])) {
             foreach ($json['mockups'] as $mockup) {
-                $pattern->addMockup(Mockup::fromJson($mockup));
+                $pattern->addMockup(Mockup::fromJson($mockup, $directory));
             }
         }
         return $pattern;

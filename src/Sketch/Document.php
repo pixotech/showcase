@@ -50,7 +50,7 @@ class Document implements DocumentInterface
         $lines = explode("\n", $proc->getOutput());
         foreach ($lines as $line) {
             if (preg_match('/^Exported (.+)$/', $line, $matches)) {
-                $images[] = Image::fromPath(basename($matches[1]));
+                $images[] = Image::fromPath(basename($matches[1]), $path);
             }
         }
         return $images;

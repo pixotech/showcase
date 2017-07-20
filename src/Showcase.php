@@ -34,7 +34,7 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
         return $showcase;
     }
 
-    public static function fromJson(array $json)
+    public static function fromJson(array $json, $directory)
     {
         $showcase = new static();
         if (!empty($json['source'])) {
@@ -45,7 +45,7 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
         }
         if (!empty($json['patterns'])) {
             foreach ($json['patterns'] as $pattern) {
-                $showcase->patterns[$pattern['id']] = Pattern::fromJson($pattern);
+                $showcase->patterns[$pattern['id']] = Pattern::fromJson($pattern, $directory);
             }
         }
         if (!empty($json['time'])) {
@@ -63,7 +63,7 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
         if (null === $json) {
             throw new \DomainException("Empty or invalid file: $path");
         }
-        $showcase = static::fromJson($json);
+        $showcase = static::fromJson($json, dirname($path));
         return $showcase;
     }
 

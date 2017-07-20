@@ -24,7 +24,7 @@ class Mockup implements MockupInterface, \Countable, \IteratorAggregate, \JsonSe
         return $mockup;
     }
 
-    public static function fromJson(array $json)
+    public static function fromJson(array $json, $directory)
     {
         $mockup = new static();
         if (!empty($json['artboard'])) {
@@ -32,7 +32,7 @@ class Mockup implements MockupInterface, \Countable, \IteratorAggregate, \JsonSe
         }
         if (!empty($json['images'])) {
             foreach ($json['images'] as $image) {
-                $mockup->images[] = Image::fromJson($image);
+                $mockup->images[] = Image::fromJson($image, $directory);
             }
         }
         return $mockup;
