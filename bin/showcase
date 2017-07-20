@@ -2,15 +2,6 @@
 
 namespace Pixo\Showcase;
 
-use Pixo\Showcase\Console\ClearCommand;
-use Pixo\Showcase\Console\InspectCommand;
-use Pixo\Showcase\Console\SaveCommand;
-use Symfony\Component\Console\Application;
-
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$app = new Application('showcase', Showcase::VERSION);
-$app->add(new ClearCommand());
-$app->add(new InspectCommand());
-$app->add(new SaveCommand());
-$app->run();
+(new Console\Application())->run();
