@@ -6,6 +6,17 @@ use Pixo\Showcase\Sketch\Application;
 
 class ShowcaseTest extends \PHPUnit_Framework_TestCase
 {
+    protected $filesCreated = [];
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+        foreach ($this->filesCreated as $file) {
+            unlink($file);
+        }
+        $this->filesCreated = [];
+    }
+
     public function testLoadShowcase()
     {
         $source = 'test.sketch';
@@ -13,7 +24,7 @@ class ShowcaseTest extends \PHPUnit_Framework_TestCase
         $applicationVersion = '1.2.3';
         $time = new \DateTime('-4 hours ago');
 
-        $path = $this->createJsonFile([
+        $path = $this->createManifest([
             'source' => $source,
             'application' => [
                 'name' => $applicationName,
@@ -51,11 +62,13 @@ class ShowcaseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($pattern->getMockups()));
     }
 
-    protected function createJsonFile($data)
+    protected function createManifest($data)
     {
+        $path = sys_get_temp_dir();
         $json = json_encode($data, JSON_PRETTY_PRINT);
-        $tmpName = tempnam(sys_get_temp_dir(), 'showcase-test-');
+        $tmpName = $path . DIRECTORY_SEPARATOR . Showcase::MANIFEST_NAME;
         file_put_contents($tmpName, $json);
-        return $tmpName;
+        $this->filesCreated[] = $tmpName;
+        return $path;
     }
 }
