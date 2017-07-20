@@ -14,6 +14,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Showcase implements ShowcaseInterface, \JsonSerializable
 {
+    const MANIFEST_NAME = 'showcase.manifest.json';
+
+    const VERSION = '0.0.1';
+
     protected $application;
 
     protected $patterns = [];
@@ -54,16 +58,24 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
         return $showcase;
     }
 
+    /**
+     * @param $path
+     * @return Showcase
+     */
     public static function load($path)
     {
-        if (!is_file($path)) {
-            throw new \InvalidArgumentException("Not a file: $path");
+        if (!is_dir($path)) {
+            throw new \InvalidArgumentException("Not a directory: $path");
         }
-        $json = static::jsonDecode(file_get_contents($path));
+        $manifestPath = static::makeManifestPath($path);
+        if (!is_file($manifestPath)) {
+            throw new \InvalidArgumentException("Could not find manifest: $manifestPath");
+        }
+        $json = static::jsonDecode(file_get_contents($manifestPath));
         if (null === $json) {
-            throw new \DomainException("Empty or invalid file: $path");
+            throw new \DomainException("Empty or invalid file: $manifestPath");
         }
-        $showcase = static::fromJson($json, dirname($path));
+        $showcase = static::fromJson($json, $path);
         return $showcase;
     }
 
@@ -103,11 +115,11 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
         $stop = microtime(true);
         $elapsed = $stop - $start;
 
-        $reportPath = $prefix . 'showcase.json';
-        $report = json_encode($showcase, JSON_PRETTY_PRINT);
-        file_put_contents($reportPath, $report);
-        $output->writeln('Report saved.', Output::VERBOSITY_VERBOSE);
-        $filesCreated[] = $reportPath;
+        $manifestPath = self::makeManifestPath($path);
+        $manifest = json_encode($showcase, JSON_PRETTY_PRINT);
+        file_put_contents($manifestPath, $manifest);
+        $output->writeln('Manifest saved.', Output::VERBOSITY_VERBOSE);
+        $filesCreated[] = $manifestPath;
 
         $output->writeln(sprintf("%d files created.", count($filesCreated)));
 
@@ -125,6 +137,11 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
         $width = $artboard->getWidth();
         $height = $artboard->getHeight();
         return "{$pattern}__{$width}x{$height}__{$scale}.{$format}";
+    }
+
+    protected static function makeManifestPath($dir)
+    {
+        return rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . self::MANIFEST_NAME;
     }
 
     public function addPattern(PatternInterface $pattern)
