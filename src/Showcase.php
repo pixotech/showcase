@@ -2,6 +2,7 @@
 
 namespace Pixo\Showcase;
 
+use Pixo\Showcase\Exceptions\MissingManifestException;
 use Pixo\Showcase\Sketch\Application;
 use Pixo\Showcase\Sketch\ApplicationInterface;
 use Pixo\Showcase\Sketch\Document;
@@ -96,7 +97,7 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
         }
         $manifestPath = static::makeManifestPath($path);
         if (!is_file($manifestPath)) {
-            throw new \InvalidArgumentException("Could not find manifest: $manifestPath");
+            throw new MissingManifestException($manifestPath);
         }
         $json = static::jsonDecode(file_get_contents($manifestPath));
         if (null === $json) {
@@ -107,59 +108,12 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
     }
 
     /**
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param string $dir
+     * @return string
      */
-    public static function save(InputInterface $input, OutputInterface $output)
+    public static function makeManifestPath($dir)
     {
-        $start = microtime(true);
-        $filesCreated = [];
-        $file = $input->getArgument('file');
-        $path = $input->getArgument('path');
-        $doc = new Document($file);
-        $formats = [
-            ['1x,2x', 'png'],
-        ];
-        $prefix = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-        $showcase = Showcase::fromDocument($doc);
-        foreach ($doc->getArtboards() as $artboard) {
-            if (!$artboard->isPattern()) {
-                continue;
-            }
-            $pattern = $artboard->getPattern();
-            if (!$showcase->hasPattern($pattern)) {
-                $showcase->addPattern(new Pattern($pattern));
-            }
-            $mockup = Mockup::fromArtboard($artboard);
-            foreach ($formats as $f) {
-                list($scale, $format) = $f;
-                $images = $doc->export($artboard, $path, $format, $scale);
-                $output->writeln(sprintf("Exported %d files from artboard \"%s\"", count($images), $artboard->getName()), Output::VERBOSITY_VERBOSE);
-                foreach ($images as $image) {
-                    $mockup->addImage($image);
-                    $filesCreated[] = $prefix . $image->getPath();
-                }
-            }
-            $showcase->getPattern($pattern)->addMockup($mockup);
-        }
-
-        $stop = microtime(true);
-        $elapsed = $stop - $start;
-
-        $manifestPath = self::makeManifestPath($path);
-        $manifest = json_encode($showcase, JSON_PRETTY_PRINT);
-        file_put_contents($manifestPath, $manifest);
-        $output->writeln('Manifest saved.', Output::VERBOSITY_VERBOSE);
-        $filesCreated[] = $manifestPath;
-
-        $output->writeln(sprintf("%d files created.", count($filesCreated)));
-
-        $output->writeln(sprintf("Done. (%0.04d seconds)", $elapsed));
-    }
-
-    public static function version(InputInterface $input, OutputInterface $output)
-    {
-        return $output->writeln(self::VERSION);
+        return rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . self::MANIFEST_NAME;
     }
 
     /**
@@ -169,15 +123,6 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
     protected static function jsonDecode($str)
     {
         return json_decode($str, true);
-    }
-
-    /**
-     * @param string $dir
-     * @return string
-     */
-    protected static function makeManifestPath($dir)
-    {
-        return rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . self::MANIFEST_NAME;
     }
 
     public function __construct()

@@ -3,24 +3,14 @@
 namespace Pixo\Showcase;
 
 use Pixo\Showcase\Console\ClearCommand;
+use Pixo\Showcase\Console\InspectCommand;
+use Pixo\Showcase\Console\SaveCommand;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Input\InputArgument;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $app = new Application('showcase', Showcase::VERSION);
-
 $app->add(new ClearCommand());
-
-$app->register('inspect')
-    ->setDescription("Display information about a directory of mockups")
-    ->addArgument('path', InputArgument::REQUIRED, 'The path to the directory')
-    ->setCode([Showcase::class, 'inspect']);
-
-$app->register('save')
-    ->setDescription("Export pattern mockups to a directory")
-    ->addArgument('file', InputArgument::REQUIRED, 'The path to the Sketch file')
-    ->addArgument('path', InputArgument::REQUIRED, 'The path to the target directory')
-    ->setCode([Showcase::class, 'save']);
-
+$app->add(new InspectCommand());
+$app->add(new SaveCommand());
 $app->run();
