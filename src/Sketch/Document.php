@@ -5,6 +5,7 @@ namespace Pixo\Showcase\Sketch;
 use Pixo\Showcase\Image;
 use Pixo\Showcase\ImageInterface;
 use Pixo\Showcase\Sketch\Exceptions\ExportException;
+use Pixo\Showcase\Sketch\Exceptions\InvalidDocumentPathException;
 use Symfony\Component\Process\Process;
 
 class Document implements DocumentInterface
@@ -14,7 +15,7 @@ class Document implements DocumentInterface
     public function __construct($path)
     {
         if (!is_file($path)) {
-            throw new \InvalidArgumentException("Not a file: $path");
+            throw new InvalidDocumentPathException($path);
         }
         $this->path = realpath($path);
     }

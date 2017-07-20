@@ -4,12 +4,29 @@ namespace Pixo\Showcase\Sketch;
 
 class ApplicationTest extends \PHPUnit_Framework_TestCase
 {
-    public function testFromJson()
+    public static function getMockJson()
     {
-        $json = [
+        return [
             'name' => 'fake-sketch',
             'version' => '1.2.3',
         ];
+    }
+
+    public function testFromDocumentJson()
+    {
+        $json = [
+            'app' => 'fake-sketch',
+            'appVersion' => '1.2.3',
+        ];
+        $application = Application::fromDocumentMetadata($json);
+        $this->assertInstanceOf(Application::class, $application);
+        $this->assertEquals($json['app'], $application->getName());
+        $this->assertEquals($json['appVersion'], $application->getVersion());
+    }
+
+    public function testFromJson()
+    {
+        $json = static::getMockJson();
         $application = Application::fromJson($json);
         $this->assertInstanceOf(Application::class, $application);
         $this->assertEquals($json['name'], $application->getName());
@@ -18,10 +35,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
 
     public function testJsonSerialize()
     {
-        $source = [
-            'name' => 'fake-sketch',
-            'version' => '1.2.3',
-        ];
+        $source = static::getMockJson();
         $application = Application::fromJson($source);
         $json = $application->jsonSerialize();
         $this->assertArrayHasKey('name', $json);

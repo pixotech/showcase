@@ -19,6 +19,42 @@ class ArtboardTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    public static function getMockPageJson()
+    {
+        return [
+            'name' => 'Name of page',
+        ];
+    }
+
+    public function testFromDocumentJson()
+    {
+        $description = 'Description of artboard';
+        $pattern = 'pattern-id';
+        $group = 'Name of group';
+        $extra = 'Extra information';
+        $json = [
+            'id' => 'artboard-id',
+            'name' => "{$group}/{$description} @{$pattern} {$extra}",
+            'page' => self::getMockPageJson(),
+            'rect' => [
+                'width' => 800,
+                'height' => 600,
+            ],
+        ];
+        $page = self::getMockPageJson();
+        $artboard = Artboard::fromDocumentJson($json, $page);
+        $this->assertInstanceOf(Artboard::class, $artboard);
+        $this->assertEquals($json['id'], $artboard->getId());
+        $this->assertEquals($json['name'], $artboard->getName());
+        $this->assertEquals($page['name'], $artboard->getPage());
+        $this->assertEquals($description, $artboard->getDescription());
+        $this->assertEquals($pattern, $artboard->getPattern());
+        $this->assertEquals($group, $artboard->getGroup());
+        $this->assertEquals($extra, $artboard->getExtra());
+        $this->assertEquals($json['rect']['width'], $artboard->getWidth());
+        $this->assertEquals($json['rect']['height'], $artboard->getHeight());
+    }
+
     public function testFromJson()
     {
         $json = self::getMockJson();
