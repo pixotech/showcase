@@ -8,5 +8,8 @@ interface PatternInterface
 
     public function getId();
 
+    /**
+     * @return MockupInterface[]
+     */
     public function getMockups();
 }

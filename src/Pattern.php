@@ -44,6 +44,9 @@ class Pattern implements PatternInterface, \JsonSerializable
         return $this->id;
     }
 
+    /**
+     * @return MockupInterface[]
+     */
     public function getMockups()
     {
         return $this->mockups;
