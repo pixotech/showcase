@@ -4,15 +4,18 @@ namespace Pixo\Showcase;
 
 class Image implements ImageInterface, \JsonSerializable
 {
-    protected $path;
-
     protected $format;
 
+    protected $path;
+
     protected $scale = 1;
+
+    protected $source;
 
     public static function fromJson(array $json)
     {
         $image = new static();
+        $image->source = $json['source'];
         $image->path = $json['path'];
         $image->format = $json['format'];
         $image->scale = $json['scale'];
@@ -23,9 +26,8 @@ class Image implements ImageInterface, \JsonSerializable
     {
         $image = new static();
         $image->path = $path;
-        if (preg_match('/(@[.0-9]+x)?\.([a-z]+)$/', $path, $matches)) {
-            list(, $scale, $format) = $matches;
-            $image->format = $format;
+        if (preg_match('/([-A-Z0-9]+)(@[.0-9]+x)?\.([a-z]+)$/', $path, $matches)) {
+            list(, $image->source, $scale, $image->format) = $matches;
             if ($scale) {
                 $image->scale = floatval(substr($scale, 1, -1));
             }
@@ -48,10 +50,16 @@ class Image implements ImageInterface, \JsonSerializable
         return $this->scale;
     }
 
+    public function getSource()
+    {
+        return $this->source;
+    }
+
     public function jsonSerialize()
     {
         return [
             'path' => $this->path,
+            'source' => $this->source,
             'format' => $this->format,
             'scale' => $this->scale,
         ];
