@@ -1,6 +1,7 @@
 {
     "name": "pixo/showcase",
     "description": "Export and package mockups from Sketch files",
+    "license": "NCSA",
     "autoload": {
         "psr-4": {
             "Pixo\\Showcase\\": "src"
