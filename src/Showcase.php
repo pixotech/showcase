@@ -38,17 +38,6 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
      */
     protected $time;
 
-    public static function inspect(InputInterface $input, OutputInterface $output)
-    {
-        $path = $input->getArgument('path');
-        $showcase = static::load($path);
-        ob_start();
-        var_dump($showcase);
-        $dump = ob_get_contents();
-        ob_end_clean();
-        $output->writeln($dump);
-    }
-
     /**
      * @param \Pixo\Showcase\Sketch\DocumentInterface $doc
      * @return Showcase

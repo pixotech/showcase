@@ -21,49 +21,6 @@ class Document implements DocumentInterface
     }
 
     /**
-     * @param mixed $artboard
-     * @param string $path
-     * @param string|null $format
-     * @param string|null $scale
-     * @return ImageInterface[]
-     * @throws \Exception
-     */
-    public function export($artboard, $path, $format = null, $scale = null)
-    {
-        if ($artboard instanceof ArtboardInterface) {
-            $items = $artboard->getId();
-        } elseif (is_array($artboard)) {
-            $items = implode(',', $artboard);
-        } else {
-            $items = $artboard;
-        }
-        $cmd = sprintf('sketchtool export artboards %s', escapeshellarg($this->path));
-        $cmd .= sprintf(' --items=%s', escapeshellarg($items));
-        $cmd .= sprintf(' --output=%s', escapeshellarg($path));
-        $cmd .= ' --use-id-for-name=YES';
-        $cmd .= ' --save-for-web=YES';
-        if (isset($format)) {
-            $cmd .= sprintf(' --formats=%s', escapeshellarg($format));
-        }
-        if (isset($scale)) {
-            $cmd .= sprintf(' --scales=%s', escapeshellarg($scale));
-        }
-        $proc = new Process($cmd);
-        $proc->run();
-        if (!$proc->isSuccessful()) {
-            throw new ExportException($this, $artboard, $path, $format, $scale);
-        }
-        $images = [];
-        $lines = explode("\n", $proc->getOutput());
-        foreach ($lines as $line) {
-            if (preg_match('/^Exported (.+)$/', $line, $matches)) {
-                $images[] = Image::fromPath(basename($matches[1]), $path);
-            }
-        }
-        return $images;
-    }
-
-    /**
      * @param bool $includeSymbols
      * @return ArtboardInterface[]
      * @throws \Exception
