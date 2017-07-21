@@ -46,6 +46,11 @@ class Image implements ImageInterface, \JsonSerializable
         return $info;
     }
 
+    public function __toString()
+    {
+        return (string)$this->getPath();
+    }
+
     public function getFile()
     {
         $path = rtrim($this->directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->path;

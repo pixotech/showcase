@@ -69,6 +69,11 @@ class Artboard implements \JsonSerializable, ArtboardInterface
         return $this->jsonSerialize();
     }
 
+    public function __toString()
+    {
+        return (string)$this->getName();
+    }
+
     public function getDescription()
     {
         return $this->description;

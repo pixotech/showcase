@@ -6,11 +6,6 @@ use Pixo\Showcase\Exceptions\InvalidManifestException;
 use Pixo\Showcase\Exceptions\MissingManifestException;
 use Pixo\Showcase\Sketch\Application;
 use Pixo\Showcase\Sketch\ApplicationInterface;
-use Pixo\Showcase\Sketch\Document;
-use Pixo\Showcase\Sketch\DocumentInterface;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\Output;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class Showcase implements ShowcaseInterface, \JsonSerializable
 {
@@ -39,15 +34,20 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
     protected $time;
 
     /**
-     * @param \Pixo\Showcase\Sketch\DocumentInterface $doc
+     * @param string $file
+     * @param array $metadata
      * @return Showcase
      */
-    public static function fromDocument(DocumentInterface $doc)
+    public static function fromDocument($file, array $metadata)
     {
         $showcase = new static();
-        $showcase->application = Application::fromDocumentMetadata($doc->getMetadata());
-        $showcase->source = basename($doc->getPath());
-        $showcase->time = $doc->getTime();
+        $showcase->application = Application::fromDocumentMetadata($metadata);
+        $showcase->source = basename($file);
+
+        $time = new \DateTime();
+        $time->setTimestamp(filemtime($file));
+        $showcase->time = $time;
+
         return $showcase;
     }
 
@@ -89,7 +89,7 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
         if (!is_file($manifestPath)) {
             throw new MissingManifestException($manifestPath);
         }
-        $json = static::jsonDecode(file_get_contents($manifestPath));
+        $json = json_decode(file_get_contents($manifestPath), true);
         if (null === $json) {
             throw new InvalidManifestException($manifestPath);
         }
@@ -104,15 +104,6 @@ class Showcase implements ShowcaseInterface, \JsonSerializable
     public static function makeManifestPath($dir)
     {
         return rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . self::MANIFEST_NAME;
-    }
-
-    /**
-     * @param string $str
-     * @return mixed
-     */
-    protected static function jsonDecode($str)
-    {
-        return json_decode($str, true);
     }
 
     public function __construct()

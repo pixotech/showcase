@@ -1,6 +1,6 @@
 <?php
 
-namespace Pixo\Showcase\Sketch\Exceptions;
+namespace Pixo\Showcase\Exceptions;
 
 class ExportException extends \Exception
 {

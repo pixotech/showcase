@@ -29,6 +29,11 @@ class Application implements ApplicationInterface, \JsonSerializable
         return $this->jsonSerialize();
     }
 
+    public function __toString()
+    {
+        return (string)$this->getName();
+    }
+
     public function getName()
     {
         return $this->name;

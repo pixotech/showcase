@@ -7,9 +7,9 @@ use Pixo\Showcase\ImageInterface;
 use Pixo\Showcase\Mockup;
 use Pixo\Showcase\Pattern;
 use Pixo\Showcase\Showcase;
-use Pixo\Showcase\Sketch\Document;
-use Pixo\Showcase\Sketch\DocumentInterface;
-use Pixo\Showcase\Sketch\Exceptions\ExportException;
+use Pixo\Showcase\Sketch\Artboard;
+use Pixo\Showcase\Sketch\ArtboardInterface;
+use Pixo\Showcase\Exceptions\ExportException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -33,17 +33,25 @@ class SaveCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $start = microtime(true);
-        $filesCreated = [];
+
         $file = $input->getArgument('file');
+        if (!is_file($file)) {
+            $output->writeln("<error>Not a file: $file</error>");
+            return;
+        } else {
+            $output->writeln("Source file is <info>$file</info>");
+        }
+
         $path = $input->getArgument('path');
-
-        $output->writeln("Source file is <info>$file</info>");
-        $output->writeln("Destination directory is <info>$path</info>");
-
-        $doc = new Document($file);
+        if (!is_dir($path)) {
+            $output->writeln("<error>Not a directory: $path</error>");
+            return;
+        } else {
+            $output->writeln("Destination directory is <info>$path</info>");
+        }
 
         $artboards = [];
-        foreach ($doc->getArtboards() as $artboard) {
+        foreach ($this->getDocumentArtboards($file) as $artboard) {
             if (!$artboard->isPattern()) {
                 continue;
             }
@@ -51,11 +59,12 @@ class SaveCommand extends Command
         }
         $output->writeln(sprintf("Found mockups in <comment>%s artboards</comment>", count($artboards)));
 
-        $showcase = Showcase::fromDocument($doc);
+        $showcase = Showcase::fromDocument($file, $this->getDocumentMetadata($file));
+
         $patternCount = $mockupCount = $imageCount = 0;
         if (count($artboards)) {
             $output->write('Exporting from Sketch...');
-            $exports = $this->exportArtboards($doc, array_keys($artboards), $path);
+            $exports = $this->exportArtboards($file, array_keys($artboards), $path);
             $output->writeln('<info>done.</info>');
 
             foreach ($exports as $id => $images) {
@@ -90,15 +99,15 @@ class SaveCommand extends Command
     }
 
     /**
-     * @param DocumentInterface $doc
+     * @param string $file
      * @param array $ids An array of artboard IDs
      * @param string $path
      * @return array
      * @throws \Exception
      */
-    public function exportArtboards(DocumentInterface $doc, array $ids, $path)
+    public function exportArtboards($file, array $ids, $path)
     {
-        $cmd = sprintf('sketchtool export artboards %s', escapeshellarg($doc->getPath()));
+        $cmd = sprintf('sketchtool export artboards %s', escapeshellarg($file));
         $cmd .= sprintf(' --items=%s', escapeshellarg(implode(',', $ids)));
         $cmd .= sprintf(' --output=%s', escapeshellarg($path));
         $cmd .= sprintf(' --formats=%s', escapeshellarg(self::DEFAULT_FORMATS));
@@ -120,6 +129,46 @@ class SaveCommand extends Command
             }
         }
         return $exports;
+    }
+
+    /**
+     * @param string $file
+     * @return ArtboardInterface[]
+     * @throws \Exception
+     */
+    public function getDocumentArtboards($file)
+    {
+        $artboards = [];
+        $cmd = sprintf("sketchtool list artboards %s", escapeshellarg($file));
+        $cmd .= " --include-symbols=YES";
+        $proc = new Process($cmd);
+        $proc->run();
+        if (!$proc->isSuccessful()) {
+            throw new \Exception("Could not retrieve artboards");
+        }
+        $data = json_decode($proc->getOutput(), true);
+        foreach ($data['pages'] as $page) {
+            foreach ($page['artboards'] as $artboard) {
+                $artboards[$artboard['id']] = Artboard::fromDocumentJson($artboard, $page);
+            }
+        }
+        return $artboards;
+    }
+
+    /**
+     * @param string $file
+     * @return array
+     * @throws \Exception
+     */
+    public function getDocumentMetadata($file)
+    {
+        $cmd = sprintf("sketchtool metadata %s", escapeshellarg($file));
+        $proc = new Process($cmd);
+        $proc->run();
+        if (!$proc->isSuccessful()) {
+            throw new \Exception("Could not retrieve metadata");
+        }
+        return json_decode($proc->getOutput(), true);
     }
 
     protected function getExportedFilePath($dir, ImageInterface $image)
