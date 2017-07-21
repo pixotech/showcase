@@ -5,21 +5,6 @@ namespace Pixo\Showcase\Sketch;
 interface ArtboardInterface
 {
     /**
-     * @return string
-     */
-    public function getDescription();
-
-    /**
-     * @return string
-     */
-    public function getExtra();
-
-    /**
-     * @return string
-     */
-    public function getGroup();
-
-    /**
      * @return int
      */
     public function getHeight();
