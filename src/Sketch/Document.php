@@ -21,17 +21,24 @@ class Document implements DocumentInterface
     }
 
     /**
-     * @param \Pixo\Showcase\Sketch\ArtboardInterface $artboard
+     * @param mixed $artboard
      * @param string $path
      * @param string|null $format
      * @param string|null $scale
      * @return ImageInterface[]
      * @throws \Exception
      */
-    public function export(ArtboardInterface $artboard, $path, $format = null, $scale = null)
+    public function export($artboard, $path, $format = null, $scale = null)
     {
+        if ($artboard instanceof ArtboardInterface) {
+            $items = $artboard->getId();
+        } elseif (is_array($artboard)) {
+            $items = implode(',', $artboard);
+        } else {
+            $items = $artboard;
+        }
         $cmd = sprintf('sketchtool export artboards %s', escapeshellarg($this->path));
-        $cmd .= sprintf(' --item=%s', escapeshellarg($artboard->getId()));
+        $cmd .= sprintf(' --items=%s', escapeshellarg($items));
         $cmd .= sprintf(' --output=%s', escapeshellarg($path));
         $cmd .= ' --use-id-for-name=YES';
         $cmd .= ' --save-for-web=YES';
